@@ -23,6 +23,10 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/*
+ * https://github.com/mastro-elfo/MooVoo
+ */
+
 ;(function(){
 	'use strict';
 	/**
@@ -65,7 +69,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 	 * @since 1.0.0
 	 */
 	MooVoo.Core = {
-		version: '1.0.0'
+		version: '1.1.0'
 	};
 		
 	/**
@@ -105,7 +109,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 		 *
 		 * @fires change
 		 * @since 1.0.0
-		 * @todo fire event on real change
 		 */
 		set: function(name, value){
 			var fire = false;
@@ -123,7 +126,6 @@ OTHER DEALINGS IN THE SOFTWARE.
 				this.setOptions(o);
 				fire = true;
 			}
-			// TODO
 			if(fire) {
 				this.fireEvent('change', this);
 			}
@@ -175,7 +177,56 @@ OTHER DEALINGS IN THE SOFTWARE.
 			return this;
 		}
 	});
-		
+	
+	/**
+	 * MooVoo.Property
+	 *
+	 * This object is a draft.
+	 *
+	 * @extends MooVoo.Model
+	 * @since 1.1.0
+	 */
+	MooVoo.Property = new Class({
+		Extends: MooVoo.Model,
+		options: {
+			onReady: function(){
+				this.set(this.property, this.model.get(this.property));
+			},
+			onModelChange: function(){
+				var value = this.model.get(this.property);
+				if(value !== this.get(this.property)) {
+					this.set(this.property, value);
+				}
+			},
+			onModelDestroy: function(){
+				this.destroy();
+			}
+		},
+		initialize: function(options){
+			options = options || {};
+			
+			// model is a special option
+			this.model = options.model;
+			delete options.model;
+			
+			// property is a special option
+			this.property = options.property;
+			delete options.property;
+			
+			var self = this;
+			Object.each(Object.filter(Object.merge.apply(null, [{}, this.options].append(arguments)),
+									  function(option){return typeOf(option) == 'function' && (/^onModel[A-Z]/).test(event);}),
+						function(callback, event){
+							if (self.model){
+								addEvent(self, self.model, event, 'onModel');
+							}
+			});
+			
+			this.parent(options);
+		},
+		__value: null
+	});
+	
 	/**
 	 * class MooVoo.View
 	 * @fires ready, render

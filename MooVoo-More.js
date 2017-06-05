@@ -23,6 +23,10 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
+/*
+ * https://github.com/mastro-elfo/MooVoo
+ */
+
 ;(function(){
 	'use strict';
 	
@@ -34,7 +38,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 	var MooVoo = window.MooVoo;
 	
 	MooVoo.More = {
-		version: '1.0.0'
+		version: '1.1.0'
 	};
 	
 	if(!JSON) {
