@@ -169,7 +169,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 		Extends: MooVoo.View,
 		options: {
 			onRender: function(){
-				this.element.set(this.options.attribute, this.options.template());
+				this.element.set(this.options.attribute, this.options.template.call(this));
 			},
 			onModelChange: function(){
 				var propertyValue = this.model.get(this.options.property);
@@ -195,7 +195,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 		Extends: MooVoo.Output,
 		options: {
 			onRender: function(){
-				this.element.setStyle(this.options.attribute, this.options.template());
+				this.element.setStyle(this.options.attribute, this.options.template.call(this));
 			}
 		}
 	});
@@ -210,7 +210,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 		Extends: MooVoo.Output,
 		options: {
 			onRender: function(){
-				if(this.options.template()) {
+				if(this.options.template.call(this)) {
 					this.element.addClass(this.options.attribute);
 				}
 				else {

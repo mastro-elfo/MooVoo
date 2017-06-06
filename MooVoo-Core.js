@@ -112,11 +112,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 		 */
 		set: function(name, value){
 			var fire = false;
+			var self = this;
 			if(typeOf(name) == 'object') {
 				if(Object.some(name, function(v, k){
-					return v !== this.options[k];
+					return v !== self.options[k];
 				})) {
-					this.setOptions(name);
+					self.setOptions(name);
 					fire = true;
 				}
 			}
