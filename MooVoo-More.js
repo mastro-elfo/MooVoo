@@ -261,19 +261,17 @@ OTHER DEALINGS IN THE SOFTWARE.
 			this.targetElement = $(options.targetElement) || $(this.options.targetElement) || null;
 			delete options.targetElement;
 			
-			var self = this;
-			
 			this.triggerElement.addEvent(options.triggerEvent, function(){
-				self.set('display', !self.get('display'));
-			});
+				this.set('display', !this.get('display'));
+			}.bind(this));
 			delete options.triggerEvent;
 			
 			this.render = options.render;
 			delete options.render;
 			
 			this.addEvent('change', function(event){
-				self.render(event);
-			});
+				this.render(event);
+			}.bind(this));
 			delete options.render;
 			
 			this.parent(options);

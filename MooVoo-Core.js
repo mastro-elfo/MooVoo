@@ -46,20 +46,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 	}
 	
 	/**
-	 * addEvent(self, obj, event, replace)
+	 * addEvent(obj, event, replace)
 	 *
 	 * Adds onModel.. and onElement... events
 	 *
-	 * @param {Object} self View or Collection that adds the event
 	 * @param {Object} obj The event triggerer
 	 * @param {String} event The event name
 	 * @param {String} replace The part of event that must be replaced
 	 * @since 1.0.0
 	 */
-	function addEvent(self, obj, event, replace) {
+	function addEvent(obj, event, replace) {
 		obj.addEvent(event.replace(replace, '').toLowerCase(), function(data){
-			self.fireEvent(event, data);
-		});
+			this.fireEvent(event, data);
+		}.bind(this));
 	}
 	
 	var MooVoo = window.MooVoo = {};
@@ -112,12 +111,11 @@ OTHER DEALINGS IN THE SOFTWARE.
 		 */
 		set: function(name, value){
 			var fire = false;
-			var self = this;
 			if(typeOf(name) == 'object') {
 				if(Object.some(name, function(v, k){
-					return v !== self.options[k];
-				})) {
-					self.setOptions(name);
+					return v !== this.options[k];
+				}.bind(this))) {
+					this.setOptions(name);
 					fire = true;
 				}
 			}
@@ -151,11 +149,10 @@ OTHER DEALINGS IN THE SOFTWARE.
 				return this.options[arguments[0]];
 			}
 			else {
-				var self = this;
 				var output = {};
 				Array.flatten(arguments).each(function(key){
-					output[key] = self.options[key];
-				});
+					output[key] = this.options[key];
+				}.bind(this));
 				return output;
 			}
 		},
@@ -214,14 +211,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 			this.property = options.property;
 			delete options.property;
 			
-			var self = this;
-			Object.each(Object.filter(Object.merge.apply(null, [{}, this.options].append(arguments)),
-									  function(option){return typeOf(option) == 'function' && (/^onModel[A-Z]/).test(event);}),
-						function(callback, event){
-							if (self.model){
-								addEvent(self, self.model, event, 'onModel');
-							}
-			});
+			Object.each(
+				Object.filter(
+					Object.merge.apply(null, [{}, this.options].append(arguments)),
+					function(option){return typeOf(option) == 'function' && (/^onModel[A-Z]/).test(event);}),
+				function(callback, event){
+					if (this.model){
+						addEvent.call(this, this.model, event, 'onModel');
+					}
+				}.bind(this)
+			);
 			
 			this.parent(options);
 		},
@@ -251,17 +250,19 @@ OTHER DEALINGS IN THE SOFTWARE.
 			this.element = $(options.element);
 			delete options.element;
 			
-			var self = this;
-			Object.each(Object.filter(Object.merge.apply(null, [{}, this.options].append(arguments)),
-									  function(option){return typeOf(option) == 'function';}),
-						function(callback, event){
-							if (self.model && (/^onModel[A-Z]/).test(event)){
-								addEvent(self, self.model, event, 'onModel');
-							}
-							else if (self.element && (/^onElement[A-Z]/).test(event)) {
-								addEvent(self, self.element, event, 'onElement');
-							}
-			});
+			Object.each(
+				Object.filter(
+					Object.merge.apply(null, [{}, this.options].append(arguments)),
+					function(option){return typeOf(option) == 'function';}),
+				function(callback, event){
+					if (this.model && (/^onModel[A-Z]/).test(event)){
+						addEvent.call(this, this.model, event, 'onModel');
+					}
+					else if (this.element && (/^onElement[A-Z]/).test(event)) {
+						addEvent.call(this, this.element, event, 'onElement');
+					}
+				}.bind(this)
+			);
 			
 			this.setOptions(options);
 			
@@ -294,10 +295,12 @@ OTHER DEALINGS IN THE SOFTWARE.
 			options = options || {};
 			
 			// Save 'onModel...' events to add them with 'addModel' method
-			this.__modelEvents = Object.filter(Object.merge.apply(null, [{}, this.options].append(arguments)),
-												function(option, name){
-													return typeOf(option) == 'function' && /^onModel[A-Z]/.test(name);
-												});
+			this.__modelEvents = Object.filter(
+									Object.merge.apply(null, [{}, this.options].append(arguments)),
+									function(option, name){
+										return typeOf(option) == 'function' && /^onModel[A-Z]/.test(name);
+									}
+								);
 			this.setOptions(options);
 			this.fireEvent('ready');
 		},
@@ -309,16 +312,15 @@ OTHER DEALINGS IN THE SOFTWARE.
 		 * @since 1.0.0
 		 */
 		addModel: function(){
-			var self = this;
 			Array.flatten(Array.convert(arguments)).each(function(model){
-				var idx = self.push(model) -1;
+				var idx = this.push(model) -1;
 				
 				// add onModel... events
-				Object.each(self.__modelEvents, function(callback, option){
-					addEvent(self, self[idx], option, 'onModel');
+				Object.each(this.__modelEvents, function(callback, option){
+					addEvent.call(this, this[idx], option, 'onModel');
 				});
-				self.fireEvent('add', self[idx]);
-			});
+				this.fireEvent('add', this[idx]);
+			}.bind(this));
 			
 			return this;
 		},
